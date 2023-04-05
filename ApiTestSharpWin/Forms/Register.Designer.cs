@@ -149,6 +149,7 @@
             this.license.TabIndex = 45;
             this.license.Text = "License";
             this.license.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.license.Visible = false;
             this.license.TextChanged += new System.EventHandler(this.license_TextChanged);
             // 
             // button3

@@ -152,6 +152,7 @@
             this.button4.TabIndex = 44;
             this.button4.Text = "Extend Subscription";
             this.button4.UseVisualStyleBackColor = false;
+            this.button4.Visible = false;
             this.button4.Click += new System.EventHandler(this.extendSub_Click);
             // 
             // rememberMeCheckBox

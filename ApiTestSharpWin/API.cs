@@ -64,6 +64,8 @@ namespace BlitzWare
         }
         internal class ApplicationSettings
         {
+            public static string id { get; set; }
+
             public static bool status { get; set; }
 
             public static bool hwidCheck { get; set; }
@@ -109,6 +111,8 @@ namespace BlitzWare
             public string hwid { get; set; }
 
             public string lastIP { get; set; }
+
+            public string id { get; set; }
         }
         class UserExtendDetails
         {
@@ -177,12 +181,17 @@ namespace BlitzWare
                     if (response.IsSuccessStatusCode)
                     {
                         Constants.initialized = true;
+                        ApplicationSettings.id = content2.id;
                         ApplicationSettings.status = content2.status;
                         ApplicationSettings.hwidCheck = content2.hwidCheck;
                         ApplicationSettings.programHash = content2.programHash;
                         ApplicationSettings.version = content2.version;
                         ApplicationSettings.downloadLink = content2.downloadLink;
                         ApplicationSettings.developerMode = content2.developerMode;
+                        ApplicationSettings.freeMode = content2.freeMode;
+
+                        if (ApplicationSettings.freeMode)
+                            MessageBox.Show("Application is in Free Mode!", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                         if (ApplicationSettings.developerMode)
                         {
@@ -347,7 +356,7 @@ namespace BlitzWare
                 {
                     RequestUri = new Uri(url),
                     Method = HttpMethod.Post,
-                    Content = new StringContent(JsonConvert.SerializeObject(new UserRegisterDetails { username = username, password = password, email = email, license = license, hwid = Constants.HWID(), lastIP = Constants.IP() }), Encoding.UTF8, "application/json")
+                    Content = new StringContent(JsonConvert.SerializeObject(new UserRegisterDetails { username = username, password = password, email = email, license = license, hwid = Constants.HWID(), lastIP = Constants.IP(), id = ApplicationSettings.id }), Encoding.UTF8, "application/json")
                 };
                 var response = client.SendAsync(request).Result;
                 var content = response.Content.ReadAsStringAsync().Result;
@@ -511,7 +520,7 @@ namespace BlitzWare
                     using (StreamReader sr = new StreamReader($@"{drive}Windows\System32\drivers\etc\hosts"))
                     {
                         string contents = sr.ReadToEnd();
-                        if (contents.Contains("3.120.148.15"))
+                        if (contents.Contains("localhost:9000"))
                         {
                             Constants.breached = true;
                             MessageBox.Show("DNS redirecting has been detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);

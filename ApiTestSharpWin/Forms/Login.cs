@@ -172,6 +172,10 @@ namespace BlitzWare
                 username.Text = (string)Username;
                 password.Text = (string)Password;
             }
+            if (!API.ApplicationSettings.freeMode)
+            {
+                button4.Visible = true;
+            }
         }
 
         private void button5_Click(object sender, EventArgs e)

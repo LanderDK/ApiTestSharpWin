@@ -115,7 +115,10 @@ namespace BlitzWare
 
         private void Register_Load(object sender, EventArgs e)
         {
-
+            if (!API.ApplicationSettings.freeMode)
+            {
+                license.Visible = true;
+            }
         }
 
         private void Register_MouseDown(object sender, MouseEventArgs e)
