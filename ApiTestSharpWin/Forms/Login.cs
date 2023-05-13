@@ -55,6 +55,7 @@ namespace BlitzWare
             {
                 //Put code here of what you want to do after successful login
                 MessageBox.Show("Welcome back, " + API.User.Username + "!" + "\n\nYou have successfully logged in!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                API.Log(API.User.Username, "User logged in");
                 Main main = new Main();
                 main.Show();
                 this.Hide();

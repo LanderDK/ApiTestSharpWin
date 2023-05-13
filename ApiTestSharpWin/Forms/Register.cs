@@ -28,6 +28,7 @@ namespace BlitzWare
             if (API.Register(username.Text, password.Text, email.Text, license.Text))
             {
                 MessageBox.Show("You have successfully registered!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                API.Log(API.User.Username, "User registered");
             }
         }
 

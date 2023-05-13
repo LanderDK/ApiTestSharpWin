@@ -28,6 +28,7 @@ namespace BlitzWare
             if (API.ExtendSub(username.Text, password.Text, license.Text))
             {
                 MessageBox.Show("You have successfully extended your subscription!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                API.Log(API.User.Username, "User extended");
             }
         }
 

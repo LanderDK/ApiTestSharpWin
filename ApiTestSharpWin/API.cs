@@ -14,6 +14,7 @@ using System.Threading;
 using System.Security.Principal;
 using System.Management;
 using System.Net.Sockets;
+using RestSharp;
 
 namespace BlitzWare
 {
@@ -54,14 +55,6 @@ namespace BlitzWare
                 return externalIpString;
             }
         }
-        class AppInitDetails
-        {
-            public string name { get; set; }
-
-            public string secret { get; set; }
-
-            public string version { get; set; }
-        }
         internal class ApplicationSettings
         {
             public static string id { get; set; }
@@ -87,42 +80,6 @@ namespace BlitzWare
             public static bool register { get; set; }
 
             public static string TotalUsers { get; set; }
-        }
-        class UserLoginDetails
-        {
-            public string username { get; set; }
-
-            public string password { get; set; }
-
-            public string hwid { get; set; }
-
-            public string lastIP { get; set; }
-        }
-        class UserRegisterDetails
-        {
-            public string username { get; set; }
-
-            public string password { get; set; }
-
-            public string email { get; set; }
-
-            public string license { get; set; }
-
-            public string hwid { get; set; }
-
-            public string lastIP { get; set; }
-
-            public string id { get; set; }
-        }
-        class UserExtendDetails
-        {
-            public string username { get; set; }
-
-            public string password { get; set; }
-
-            public string license { get; set; }
-
-            public string hwid { get; set; }
         }
         internal class User
         {
@@ -155,16 +112,12 @@ namespace BlitzWare
                 try
                 {
                     Security.Start();
-                    string url = String.Format(Constants.apiUrl + "applications/initialize");
-                    var client = new HttpClient();
-                    var request = new HttpRequestMessage
-                    {
-                        RequestUri = new Uri(url),
-                        Method = HttpMethod.Post,
-                        Content = new StringContent(JsonConvert.SerializeObject(new AppInitDetails { name = name, secret = secret, version = version }), Encoding.UTF8, "application/json")
-                    };
-                    var response = client.SendAsync(request).Result;
-                    var content = response.Content.ReadAsStringAsync().Result;
+                    var client = new RestClient(Constants.apiUrl);
+                    var request = new RestRequest("applications/initialize", Method.Post);
+                    request.AddHeader("Content-Type", "application/json");
+                    request.AddJsonBody(new { name = name, secret = secret, version = version });
+                    var response = client.Execute(request);
+                    var content = response.Content;
                     dynamic content2 = JsonConvert.DeserializeObject(content);
 
                     if (Security.MaliciousCheck(Constants.timeSent))
@@ -273,16 +226,12 @@ namespace BlitzWare
             {
                 Security.Start();
                 Constants.timeSent = DateTime.Now;
-                string url = String.Format(Constants.apiUrl + "users/login");
-                var client = new HttpClient();
-                var request = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(url),
-                    Method = HttpMethod.Post,
-                    Content = new StringContent(JsonConvert.SerializeObject(new UserLoginDetails { username = username, password = password, hwid = Constants.HWID(), lastIP = Constants.IP() }), Encoding.UTF8, "application/json")
-                };
-                var response = client.SendAsync(request).Result;
-                var content = response.Content.ReadAsStringAsync().Result;
+                var client = new RestClient(Constants.apiUrl);
+                var request = new RestRequest("users/login", Method.Post);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(new { username = username, password = password, hwid = Constants.HWID(), lastIP = Constants.IP() });
+                var response = client.Execute(request);
+                var content = response.Content;
                 dynamic content2 = JsonConvert.DeserializeObject(content);
 
                 if (Security.MaliciousCheck(Constants.timeSent))
@@ -350,16 +299,12 @@ namespace BlitzWare
             {
                 Security.Start();
                 Constants.timeSent = DateTime.Now;
-                string url = String.Format(Constants.apiUrl + "users/register");
-                var client = new HttpClient();
-                var request = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(url),
-                    Method = HttpMethod.Post,
-                    Content = new StringContent(JsonConvert.SerializeObject(new UserRegisterDetails { username = username, password = password, email = email, license = license, hwid = Constants.HWID(), lastIP = Constants.IP(), id = ApplicationSettings.id }), Encoding.UTF8, "application/json")
-                };
-                var response = client.SendAsync(request).Result;
-                var content = response.Content.ReadAsStringAsync().Result;
+                var client = new RestClient(Constants.apiUrl);
+                var request = new RestRequest("users/register", Method.Post);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(new { username = username, password = password, email = email, license = license, hwid = Constants.HWID(), lastIP = Constants.IP(), id = ApplicationSettings.id });
+                var response = client.Execute(request);
+                var content = response.Content;
                 dynamic content2 = JsonConvert.DeserializeObject(content);
 
                 if (Security.MaliciousCheck(Constants.timeSent))
@@ -431,16 +376,12 @@ namespace BlitzWare
             {
                 Security.Start();
                 Constants.timeSent = DateTime.Now;
-                string url = String.Format(Constants.apiUrl + "users/upgrade");
-                var client = new HttpClient();
-                var request = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(url),
-                    Method = HttpMethod.Put,
-                    Content = new StringContent(JsonConvert.SerializeObject(new UserExtendDetails { username = username, password = password, license = license, hwid = Constants.HWID() }), Encoding.UTF8, "application/json")
-                };
-                var response = client.SendAsync(request).Result;
-                var content = response.Content.ReadAsStringAsync().Result;
+                var client = new RestClient(Constants.apiUrl);
+                var request = new RestRequest("users/upgrade", Method.Put);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(new { username = username, password = password, license = license, hwid = Constants.HWID() });
+                var response = client.Execute(request);
+                var content = response.Content;
                 dynamic content2 = JsonConvert.DeserializeObject(content);
 
                 if (Security.MaliciousCheck(Constants.timeSent))
@@ -502,6 +443,71 @@ namespace BlitzWare
                     MessageBox.Show(ex.Message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Security.End();
                 return false;
+            }
+        }
+
+        public static void Log(string username, string action)
+        {
+            if (!Constants.initialized)
+            {
+                MessageBox.Show("Please initialize your application first!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Process.GetCurrentProcess().Kill();
+            }
+            try
+            {
+                Security.Start();
+                Constants.timeSent = DateTime.Now;
+                var client = new RestClient(Constants.apiUrl);
+                var request = new RestRequest("appLogs/", Method.Post);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(new { username = username, action = action, ip = Constants.IP(), appId = ApplicationSettings.id });
+                var response = client.Execute(request);
+                var content = response.Content;
+                dynamic content2 = JsonConvert.DeserializeObject(content);
+
+                if (Security.MaliciousCheck(Constants.timeSent))
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+                if (Constants.breached)
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Security.End();
+                }
+                else
+                {
+                    //Console.WriteLine(content2.code);
+                    if (content2.code == "UNAUTHORIZED")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "NOT_FOUND")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "VALIDATION_FAILED")
+                    {
+                        MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    Security.End();
+                    Process.GetCurrentProcess().Kill();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException.ToString().Contains("Unable to connect to the remote server"))
+                    MessageBox.Show("Unable to connect to the remote server!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                    MessageBox.Show(ex.Message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Security.End();
+                Process.GetCurrentProcess().Kill();
             }
         }
 
@@ -574,3 +580,18 @@ namespace BlitzWare
     }
 }
 
+// GET HWID OF DISKDRIVE
+/*string command = @"wmic diskdrive where DeviceID='\\\\.\\PHYSICALDRIVE0' get serialnumber";
+Process process = new Process();
+process.StartInfo.FileName = "cmd.exe";
+process.StartInfo.Arguments = "/c " + command;
+process.StartInfo.RedirectStandardOutput = true;
+process.StartInfo.UseShellExecute = false;
+process.Start();
+
+string output = process.StandardOutput.ReadToEnd();
+string[] lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+string serialNumber = lines[1].Replace(".", "").Trim();
+Console.WriteLine(serialNumber);
+
+process.WaitForExit();*/
