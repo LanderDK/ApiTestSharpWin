@@ -229,7 +229,7 @@ namespace BlitzWare
                 var client = new RestClient(Constants.apiUrl);
                 var request = new RestRequest("users/login", Method.Post);
                 request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(new { username = username, password = password, hwid = Constants.HWID(), lastIP = Constants.IP() });
+                request.AddJsonBody(new { username = username, password = password, hwid = Constants.HWID(), lastIP = Constants.IP(), appId = ApplicationSettings.id });
                 var response = client.Execute(request);
                 var content = response.Content;
                 dynamic content2 = JsonConvert.DeserializeObject(content);
@@ -379,7 +379,7 @@ namespace BlitzWare
                 var client = new RestClient(Constants.apiUrl);
                 var request = new RestRequest("users/upgrade", Method.Put);
                 request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(new { username = username, password = password, license = license, hwid = Constants.HWID() });
+                request.AddJsonBody(new { username = username, password = password, license = license, hwid = Constants.HWID(), appId = ApplicationSettings.id });
                 var response = client.Execute(request);
                 var content = response.Content;
                 dynamic content2 = JsonConvert.DeserializeObject(content);
