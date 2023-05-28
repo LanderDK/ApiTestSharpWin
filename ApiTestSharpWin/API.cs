@@ -526,7 +526,7 @@ namespace BlitzWare
                     using (StreamReader sr = new StreamReader($@"{drive}Windows\System32\drivers\etc\hosts"))
                     {
                         string contents = sr.ReadToEnd();
-                        if (contents.Contains("localhost:9000"))
+                        if (contents.Contains("api.blitzware.xyz"))
                         {
                             Constants.breached = true;
                             MessageBox.Show("DNS redirecting has been detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
