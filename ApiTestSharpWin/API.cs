@@ -273,6 +273,10 @@ namespace BlitzWare
                     {
                         MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                    else if (content2.code == "FORBIDDEN")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                     Security.End();
                     return false;
                 }
@@ -344,7 +348,7 @@ namespace BlitzWare
                     }
                     else if (content2.code == "FORBIDDEN")
                     {
-                        MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     else if (content2.code == "VALIDATION_FAILED")
                     {
@@ -421,7 +425,7 @@ namespace BlitzWare
                     }
                     else if (content2.code == "FORBIDDEN")
                     {
-                        MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     else if (content2.code == "VALIDATION_FAILED")
                     {
