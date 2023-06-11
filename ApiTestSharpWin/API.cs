@@ -87,8 +87,6 @@ namespace BlitzWare
 
             public static string Username { get; set; }
 
-            public static string Password { get; set; }
-
             public static string Email { get; set; }
 
             public static string HWID { get; set; }
@@ -99,7 +97,7 @@ namespace BlitzWare
 
             public static string LastLogin { get; set; }
 
-            public static string RegisterDate { get; set; }
+            public static string AuthToken { get; set; }
         }
 
         internal class OnProgramStart
@@ -247,14 +245,14 @@ namespace BlitzWare
 
                 if (response.IsSuccessStatusCode)
                 {
-                    User.ID = content2.id;
-                    User.Username = content2.username;
-                    User.Password = content2.password;
-                    User.Email = content2.email;
-                    User.Expiry = content2.expiryDate;
-                    User.LastLogin = content2.lastLogin;
-                    User.IP = content2.lastIP;
-                    User.HWID = content2.hwid;
+                    User.ID = content2.user.id;
+                    User.Username = content2.user.username;
+                    User.Email = content2.user.email;
+                    User.Expiry = content2.user.expiryDate;
+                    User.LastLogin = content2.user.lastLogin;
+                    User.IP = content2.user.lastIP;
+                    User.HWID = content2.user.hwid;
+                    User.AuthToken = content2.token;
                     Security.End();
                     return true;
                 }
@@ -324,14 +322,14 @@ namespace BlitzWare
 
                 if (response.IsSuccessStatusCode)
                 {
-                    User.ID = content2.id;
-                    User.Username = content2.username;
-                    User.Password = content2.password;
-                    User.Email = content2.email;
-                    User.Expiry = content2.expiryDate;
-                    User.LastLogin = content2.lastLogin;
-                    User.IP = content2.lastIP;
-                    User.HWID = content2.hwid;
+                    User.ID = content2.user.id;
+                    User.Username = content2.user.username;
+                    User.Email = content2.user.email;
+                    User.Expiry = content2.user.expiryDate;
+                    User.LastLogin = content2.user.lastLogin;
+                    User.IP = content2.user.lastIP;
+                    User.HWID = content2.user.hwid;
+                    User.AuthToken = content2.token;
                     Security.End();
                     return true;
                 }
@@ -401,14 +399,14 @@ namespace BlitzWare
 
                 if (response.IsSuccessStatusCode)
                 {
-                    User.ID = content2.id;
-                    User.Username = content2.username;
-                    User.Password = content2.password;
-                    User.Email = content2.email;
-                    User.Expiry = content2.expiryDate;
-                    User.LastLogin = content2.lastLogin;
-                    User.IP = content2.lastIP;
-                    User.HWID = content2.hwid;
+                    User.ID = content2.user.id;
+                    User.Username = content2.user.username;
+                    User.Email = content2.user.email;
+                    User.Expiry = content2.user.expiryDate;
+                    User.LastLogin = content2.user.lastLogin;
+                    User.IP = content2.user.lastIP;
+                    User.HWID = content2.user.hwid;
+                    User.AuthToken = content2.token;
                     Security.End();
                     return true;
                 }
