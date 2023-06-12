@@ -133,82 +133,79 @@ namespace BlitzWare
                         MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         Process.GetCurrentProcess().Kill();
                     }
-                    if (receivedHash == recalculatedHash)
-                    {
-                        dynamic content2 = JsonConvert.DeserializeObject(content);
-                        if (response.IsSuccessStatusCode)
-                        {
-                            Constants.initialized = true;
-                            ApplicationSettings.id = content2.id;
-                            ApplicationSettings.status = content2.status;
-                            ApplicationSettings.hwidCheck = content2.hwidCheck;
-                            ApplicationSettings.programHash = content2.programHash;
-                            ApplicationSettings.version = content2.version;
-                            ApplicationSettings.downloadLink = content2.downloadLink;
-                            ApplicationSettings.developerMode = content2.developerMode;
-                            ApplicationSettings.freeMode = content2.freeMode;
-
-                            if (ApplicationSettings.freeMode)
-                                MessageBox.Show("Application is in Free Mode!", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                            if (ApplicationSettings.developerMode)
-                            {
-                                MessageBox.Show("Application is in Developer Mode, bypassing integrity and update check!", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                File.Create(Environment.CurrentDirectory + "/integrity.log").Close();
-                                string hash = Security.Integrity(Process.GetCurrentProcess().MainModule.FileName);
-                                File.WriteAllText(Environment.CurrentDirectory + "/integrity.log", hash);
-                                MessageBox.Show("Your applications hash has been saved to integrity.txt, please refer to this when your application is ready for release!", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            }
-                            else
-                            {
-                                if (ApplicationSettings.version != version)
-                                {
-                                    MessageBox.Show($"Update {ApplicationSettings.version} available, redirecting to update!", Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    Process.Start(ApplicationSettings.downloadLink);
-                                    Process.GetCurrentProcess().Kill();
-                                }
-                                if (content2.integrityCheck == true)
-                                {
-                                    if (ApplicationSettings.programHash != Security.Integrity(Process.GetCurrentProcess().MainModule.FileName))
-                                    {
-                                        MessageBox.Show($"File has been tampered with, couldn't verify integrity!", Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                        Process.GetCurrentProcess().Kill();
-                                    }
-                                }
-                            }
-                            if (ApplicationSettings.status == false)
-                            {
-                                MessageBox.Show("Looks like this application is disabled, please try again later!", Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                Process.GetCurrentProcess().Kill();
-                            }
-                        }
-                        else
-                        {
-                            //Console.WriteLine(content2.code);
-                            if (content2.code == "UNAUTHORIZED")
-                            {
-                                MessageBox.Show((string)content2.message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                Process.GetCurrentProcess().Kill();
-                            }
-                            else if (content2.code == "NOT_FOUND")
-                            {
-                                MessageBox.Show((string)content2.message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                Process.GetCurrentProcess().Kill();
-                            }
-                            else if (content2.code == "VALIDATION_FAILED")
-                            {
-                                MessageBox.Show("Failed to initialize your application correctly in Program.cs!\n\nDetials:\n"
-                                    + Convert.ToString(content2.details), Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                Process.GetCurrentProcess().Kill();
-                            }
-                        }
-                    }
-                    else
+                    if (receivedHash != recalculatedHash)
                     {
                         MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         Process.GetCurrentProcess().Kill();
                     }
 
+                    dynamic content2 = JsonConvert.DeserializeObject(content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Constants.initialized = true;
+                        ApplicationSettings.id = content2.id;
+                        ApplicationSettings.status = content2.status;
+                        ApplicationSettings.hwidCheck = content2.hwidCheck;
+                        ApplicationSettings.programHash = content2.programHash;
+                        ApplicationSettings.version = content2.version;
+                        ApplicationSettings.downloadLink = content2.downloadLink;
+                        ApplicationSettings.developerMode = content2.developerMode;
+                        ApplicationSettings.freeMode = content2.freeMode;
+
+                        if (ApplicationSettings.freeMode)
+                            MessageBox.Show("Application is in Free Mode!", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        if (ApplicationSettings.developerMode)
+                        {
+                            MessageBox.Show("Application is in Developer Mode, bypassing integrity and update check!", Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            File.Create(Environment.CurrentDirectory + "/integrity.log").Close();
+                            string hash = Security.Integrity(Process.GetCurrentProcess().MainModule.FileName);
+                            File.WriteAllText(Environment.CurrentDirectory + "/integrity.log", hash);
+                            MessageBox.Show("Your applications hash has been saved to integrity.txt, please refer to this when your application is ready for release!", Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            if (ApplicationSettings.version != version)
+                            {
+                                MessageBox.Show($"Update {ApplicationSettings.version} available, redirecting to update!", Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                Process.Start(ApplicationSettings.downloadLink);
+                                Process.GetCurrentProcess().Kill();
+                            }
+                            if (content2.integrityCheck == true)
+                            {
+                                if (ApplicationSettings.programHash != Security.Integrity(Process.GetCurrentProcess().MainModule.FileName))
+                                {
+                                    MessageBox.Show($"File has been tampered with, couldn't verify integrity!", Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    Process.GetCurrentProcess().Kill();
+                                }
+                            }
+                        }
+                        if (ApplicationSettings.status == false)
+                        {
+                            MessageBox.Show("Looks like this application is disabled, please try again later!", Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Process.GetCurrentProcess().Kill();
+                        }
+                    }
+                    else
+                    {
+                        //Console.WriteLine(content2.code);
+                        if (content2.code == "UNAUTHORIZED")
+                        {
+                            MessageBox.Show((string)content2.message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Process.GetCurrentProcess().Kill();
+                        }
+                        else if (content2.code == "NOT_FOUND")
+                        {
+                            MessageBox.Show((string)content2.message, Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Process.GetCurrentProcess().Kill();
+                        }
+                        else if (content2.code == "VALIDATION_FAILED")
+                        {
+                            MessageBox.Show("Failed to initialize your application correctly in Program.cs!\n\nDetials:\n"
+                                + Convert.ToString(content2.details), Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Process.GetCurrentProcess().Kill();
+                        }
+                    }
                     Security.End();
                 }
                 catch (Exception ex)
@@ -261,51 +258,48 @@ namespace BlitzWare
                     MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Process.GetCurrentProcess().Kill();
                 }
-                if (receivedHash == recalculatedHash)
-                {
-                    dynamic content2 = JsonConvert.DeserializeObject(content);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        User.ID = content2.user.id;
-                        User.Username = content2.user.username;
-                        User.Email = content2.user.email;
-                        User.Expiry = content2.user.expiryDate;
-                        User.LastLogin = content2.user.lastLogin;
-                        User.IP = content2.user.lastIP;
-                        User.HWID = content2.user.hwid;
-                        User.AuthToken = content2.token;
-                        Security.End();
-                        return true;
-                    }
-                    else
-                    {
-                        //Console.WriteLine(content2.code);
-                        if (content2.code == "UNAUTHORIZED")
-                        {
-                            MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "NOT_FOUND")
-                        {
-                            MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "VALIDATION_FAILED")
-                        {
-                            MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "FORBIDDEN")
-                        {
-                            MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        Security.End();
-                        return false;
-                    }
-                }
-                else
+                if (receivedHash != recalculatedHash)
                 {
                     MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Process.GetCurrentProcess().Kill();
                 }
-                return false;
+
+                dynamic content2 = JsonConvert.DeserializeObject(content);
+                if (response.IsSuccessStatusCode)
+                {
+                    User.ID = content2.user.id;
+                    User.Username = content2.user.username;
+                    User.Email = content2.user.email;
+                    User.Expiry = content2.user.expiryDate;
+                    User.LastLogin = content2.user.lastLogin;
+                    User.IP = content2.user.lastIP;
+                    User.HWID = content2.user.hwid;
+                    User.AuthToken = content2.token;
+                    Security.End();
+                    return true;
+                }
+                else
+                {
+                    //Console.WriteLine(content2.code);
+                    if (content2.code == "UNAUTHORIZED")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "NOT_FOUND")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "VALIDATION_FAILED")
+                    {
+                        MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "FORBIDDEN")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    Security.End();
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -352,51 +346,48 @@ namespace BlitzWare
                     MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Process.GetCurrentProcess().Kill();
                 }
-                if (receivedHash == recalculatedHash)
-                {
-                    dynamic content2 = JsonConvert.DeserializeObject(content);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        User.ID = content2.user.id;
-                        User.Username = content2.user.username;
-                        User.Email = content2.user.email;
-                        User.Expiry = content2.user.expiryDate;
-                        User.LastLogin = content2.user.lastLogin;
-                        User.IP = content2.user.lastIP;
-                        User.HWID = content2.user.hwid;
-                        User.AuthToken = content2.token;
-                        Security.End();
-                        return true;
-                    }
-                    else
-                    {
-                        //Console.WriteLine(content2.code);
-                        if (content2.code == "NOT_FOUND")
-                        {
-                            MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "ER_DUP_ENTRY")
-                        {
-                            MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "FORBIDDEN")
-                        {
-                            MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "VALIDATION_FAILED")
-                        {
-                            MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        Security.End();
-                        return false;
-                    }
-                }
-                else
+                if (receivedHash != recalculatedHash)
                 {
                     MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Process.GetCurrentProcess().Kill();
                 }
-                return false;
+
+                dynamic content2 = JsonConvert.DeserializeObject(content);
+                if (response.IsSuccessStatusCode)
+                {
+                    User.ID = content2.user.id;
+                    User.Username = content2.user.username;
+                    User.Email = content2.user.email;
+                    User.Expiry = content2.user.expiryDate;
+                    User.LastLogin = content2.user.lastLogin;
+                    User.IP = content2.user.lastIP;
+                    User.HWID = content2.user.hwid;
+                    User.AuthToken = content2.token;
+                    Security.End();
+                    return true;
+                }
+                else
+                {
+                    //Console.WriteLine(content2.code);
+                    if (content2.code == "NOT_FOUND")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "ER_DUP_ENTRY")
+                    {
+                        MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "FORBIDDEN")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "VALIDATION_FAILED")
+                    {
+                        MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    Security.End();
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -443,55 +434,52 @@ namespace BlitzWare
                     MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Process.GetCurrentProcess().Kill();
                 }
-                if (receivedHash == recalculatedHash)
-                {
-                    dynamic content2 = JsonConvert.DeserializeObject(content);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        User.ID = content2.user.id;
-                        User.Username = content2.user.username;
-                        User.Email = content2.user.email;
-                        User.Expiry = content2.user.expiryDate;
-                        User.LastLogin = content2.user.lastLogin;
-                        User.IP = content2.user.lastIP;
-                        User.HWID = content2.user.hwid;
-                        User.AuthToken = content2.token;
-                        Security.End();
-                        return true;
-                    }
-                    else
-                    {
-                        //Console.WriteLine(content2.code);
-                        if (content2.code == "NOT_FOUND")
-                        {
-                            MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "ER_DUP_ENTRY")
-                        {
-                            MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "FORBIDDEN")
-                        {
-                            MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "VALIDATION_FAILED")
-                        {
-                            MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        else if (content2.code == "UNAUTHORIZED")
-                        {
-                            MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        Security.End();
-                        return false;
-                    }
-                }
-                else
+                if (receivedHash != recalculatedHash)
                 {
                     MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Process.GetCurrentProcess().Kill();
                 }
-                return false;
+
+                dynamic content2 = JsonConvert.DeserializeObject(content);
+                if (response.IsSuccessStatusCode)
+                {
+                    User.ID = content2.user.id;
+                    User.Username = content2.user.username;
+                    User.Email = content2.user.email;
+                    User.Expiry = content2.user.expiryDate;
+                    User.LastLogin = content2.user.lastLogin;
+                    User.IP = content2.user.lastIP;
+                    User.HWID = content2.user.hwid;
+                    User.AuthToken = content2.token;
+                    Security.End();
+                    return true;
+                }
+                else
+                {
+                    //Console.WriteLine(content2.code);
+                    if (content2.code == "NOT_FOUND")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "ER_DUP_ENTRY")
+                    {
+                        MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "FORBIDDEN")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "VALIDATION_FAILED")
+                    {
+                        MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "UNAUTHORIZED")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    Security.End();
+                    return false;
+                }
             }
             catch (Exception ex)
             {
