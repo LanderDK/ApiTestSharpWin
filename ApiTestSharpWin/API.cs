@@ -15,6 +15,7 @@ using System.Security.Principal;
 using System.Management;
 using System.Net.Sockets;
 using RestSharp;
+using System.Drawing;
 
 namespace BlitzWare
 {
@@ -224,7 +225,7 @@ namespace BlitzWare
             }
         }
 
-        public static bool Login(string username, string password)
+        public static bool Login(string username, string password, string twoFactorCode)
         {
             if (!Constants.initialized)
             {
@@ -238,7 +239,7 @@ namespace BlitzWare
                 var client = new RestClient(Constants.apiUrl);
                 var request = new RestRequest("users/login", Method.Post);
                 request.AddHeader("Content-Type", "application/json");
-                request.AddJsonBody(new { username = username, password = password, hwid = Constants.HWID(), lastIP = Constants.IP(), appId = ApplicationSettings.id });
+                request.AddJsonBody(new { username = username, password = password, twoFactorCode = twoFactorCode, hwid = Constants.HWID(), lastIP = Constants.IP(), appId = ApplicationSettings.id });
                 var response = client.Execute(request);
                 var content = response.Content;
 
@@ -506,6 +507,7 @@ namespace BlitzWare
                 var client = new RestClient(Constants.apiUrl);
                 var request = new RestRequest("appLogs/", Method.Post);
                 request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Authorization", "Bearer " + User.AuthToken);
                 request.AddJsonBody(new { username = username, action = action, ip = Constants.IP(), appId = ApplicationSettings.id });
                 var response = client.Execute(request);
                 var content = response.Content;
@@ -544,6 +546,269 @@ namespace BlitzWare
                     Security.End();
                     Process.GetCurrentProcess().Kill();
 
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException.ToString().Contains("Unable to connect to the remote server"))
+                    MessageBox.Show("Unable to connect to the remote server!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                    MessageBox.Show(ex.Message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Security.End();
+                Process.GetCurrentProcess().Kill();
+            }
+        }
+
+        public static void CreateQRCode()
+        {
+            if (!Constants.initialized)
+            {
+                MessageBox.Show("Please initialize your application first!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Process.GetCurrentProcess().Kill();
+            }
+            try
+            {
+                Security.Start();
+                Constants.timeSent = DateTime.Now;
+                var client = new RestClient(Constants.apiUrl);
+                var request = new RestRequest("2fa/user", Method.Post);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Authorization", "Bearer " + User.AuthToken);
+                request.AddJsonBody(new { userId = User.ID, appId = ApplicationSettings.id });
+                var response = client.Execute(request);
+                var content = response.Content;
+
+                if (Security.MaliciousCheck(Constants.timeSent))
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+                if (Constants.breached)
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Extract the Base64 encoded image data from the QR code data
+                    string encodedImage = content.Split(',')[1];
+                    // Decode the Base64 data
+                    byte[] decodedImage = Convert.FromBase64String(encodedImage);
+                    // Create a MemoryStream from the decoded image data
+                    using (MemoryStream stream = new MemoryStream(decodedImage))
+                    {
+                        // Load the image using System.Drawing.Image
+                        Image img = Image.FromStream(stream);
+
+                        // Display the image using a PictureBox (or any other UI control)
+                        using (Form form = new Form())
+                        using (PictureBox pictureBox = new PictureBox())
+                        {
+                            pictureBox.Image = img;
+                            pictureBox.SizeMode = PictureBoxSizeMode.AutoSize;
+                            form.Controls.Add(pictureBox);
+                            form.ShowDialog();
+                        }
+                    }
+                    Security.End();
+                }
+                else
+                {
+                    dynamic content2 = JsonConvert.DeserializeObject(content);
+                    //Console.WriteLine(content2.code);
+                    if (content2.code == "NOT_FOUND")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "ER_DUP_ENTRY")
+                    {
+                        MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "FORBIDDEN")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "VALIDATION_FAILED")
+                    {
+                        MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "UNAUTHORIZED")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    Security.End();
+                    Process.GetCurrentProcess().Kill();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException.ToString().Contains("Unable to connect to the remote server"))
+                    MessageBox.Show("Unable to connect to the remote server!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                    MessageBox.Show(ex.Message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Security.End();
+                Process.GetCurrentProcess().Kill();
+            }
+        }
+
+        public static void Verify2FA(string code)
+        {
+            if (!Constants.initialized)
+            {
+                MessageBox.Show("Please initialize your application first!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Process.GetCurrentProcess().Kill();
+            }
+            try
+            {
+                Security.Start();
+                Constants.timeSent = DateTime.Now;
+                var client = new RestClient(Constants.apiUrl);
+                var request = new RestRequest("2fa/user/verify", Method.Post);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Authorization", "Bearer " + User.AuthToken);
+                request.AddJsonBody(new { userId = User.ID, appId = ApplicationSettings.id, token = code });
+                var response = client.Execute(request);
+                var content = response.Content;
+
+                string receivedHash = response.Headers.FirstOrDefault(h => h.Name == "X-Response-Hash")?.Value.ToString();
+                string recalculatedHash = Security.CalculateHash(content);
+
+                /*Console.WriteLine("receivedHash: " + receivedHash);
+                Console.WriteLine("recalculatedHash: " + recalculatedHash);*/
+
+                if (Security.MaliciousCheck(Constants.timeSent))
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+                if (Constants.breached)
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+                if (receivedHash != recalculatedHash)
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+
+                dynamic content2 = JsonConvert.DeserializeObject(content);
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("2FA has been enabled!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Security.End();
+                }
+                else
+                {
+                    //Console.WriteLine(content2.code);
+                    if (content2.code == "NOT_FOUND")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "ER_DUP_ENTRY")
+                    {
+                        MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "FORBIDDEN")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "VALIDATION_FAILED")
+                    {
+                        MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "UNAUTHORIZED")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    Security.End();
+                    Process.GetCurrentProcess().Kill();
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException.ToString().Contains("Unable to connect to the remote server"))
+                    MessageBox.Show("Unable to connect to the remote server!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                    MessageBox.Show(ex.Message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Security.End();
+                Process.GetCurrentProcess().Kill();
+            }
+        }
+
+        public static void Disable2FA(string code)
+        {
+            if (!Constants.initialized)
+            {
+                MessageBox.Show("Please initialize your application first!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Process.GetCurrentProcess().Kill();
+            }
+            try
+            {
+                Security.Start();
+                Constants.timeSent = DateTime.Now;
+                var client = new RestClient(Constants.apiUrl);
+                var request = new RestRequest("2fa/user/disable", Method.Post);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Authorization", "Bearer " + User.AuthToken);
+                request.AddJsonBody(new { userId = User.ID, appId = ApplicationSettings.id, token = code });
+                var response = client.Execute(request);
+                var content = response.Content;
+
+                string receivedHash = response.Headers.FirstOrDefault(h => h.Name == "X-Response-Hash")?.Value.ToString();
+                string recalculatedHash = Security.CalculateHash(content);
+
+                /*Console.WriteLine("receivedHash: " + receivedHash);
+                Console.WriteLine("recalculatedHash: " + recalculatedHash);*/
+
+                if (Security.MaliciousCheck(Constants.timeSent))
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+                if (Constants.breached)
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+                if (receivedHash != recalculatedHash)
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+
+                dynamic content2 = JsonConvert.DeserializeObject(content);
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("2FA has been disabled!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Security.End();
+                }
+                else
+                {
+                    //Console.WriteLine(content2.code);
+                    if (content2.code == "NOT_FOUND")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "ER_DUP_ENTRY")
+                    {
+                        MessageBox.Show("User with this username already exists!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "FORBIDDEN")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "VALIDATION_FAILED")
+                    {
+                        MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "UNAUTHORIZED")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    Security.End();
+                    Process.GetCurrentProcess().Kill();
                 }
             }
             catch (Exception ex)

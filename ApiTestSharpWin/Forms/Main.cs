@@ -214,5 +214,40 @@ namespace BlitzWare
                 Location = new Point(p.X - this.startPoint.X, p.Y - this.startPoint.Y);
             }
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            API.CreateQRCode(); 
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (textBox1.Text.Length == 0)
+            {
+                MessageBox.Show("Please provide a code to enable 2FA!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                API.Verify2FA(textBox1.Text);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+            if (textBox2.Text.Length == 0)
+            {
+                MessageBox.Show("Please provide a code to disable 2FA!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                API.Disable2FA(textBox2.Text);
+            }
+        }
     }
 }

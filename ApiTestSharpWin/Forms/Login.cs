@@ -51,7 +51,7 @@ namespace BlitzWare
                 Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Username", "");
                 Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Password", "");
             }
-            if (API.Login(username.Text, password.Text))
+            if (API.Login(username.Text, password.Text, twoFactor.Text))
             {
                 MessageBox.Show("Welcome back, " + API.User.Username + "!" + "\n\nYou have successfully logged in!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 API.Log(API.User.Username, "User logged in");

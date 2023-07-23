@@ -16,7 +16,7 @@ namespace BlitzWare
         [STAThread]
         static void Main()
         {
-            BlitzWare.API.OnProgramStart.Initialize("APP NAME", "SECRET", "VERSION");
+            BlitzWare.API.OnProgramStart.Initialize("APP NAME", "APP SECRET", "APP VERSION");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Login());
