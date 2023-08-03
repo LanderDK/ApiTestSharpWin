@@ -313,6 +313,94 @@ namespace BlitzWare
             }
         }
 
+        public static bool LoginLicenseOnly(string license)
+        {
+            if (!Constants.initialized)
+            {
+                MessageBox.Show("Please initialize your application first!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            try
+            {
+                Security.Start();
+                Constants.timeSent = DateTime.Now;
+                var client = new RestClient(Constants.apiUrl);
+                var request = new RestRequest("licenses/login", Method.Post);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(new { license = license, hwid = Constants.HWID(), lastIP = Constants.IP(), appId = ApplicationSettings.id });
+                var response = client.Execute(request);
+                var content = response.Content;
+
+                string receivedHash = response.Headers.FirstOrDefault(h => h.Name == "X-Response-Hash")?.Value.ToString();
+                string recalculatedHash = Security.CalculateHash(content);
+
+                /*Console.WriteLine("receivedHash: " + receivedHash);
+                Console.WriteLine("recalculatedHash: " + recalculatedHash);*/
+
+                if (Security.MaliciousCheck(Constants.timeSent))
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+                if (Constants.breached)
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+                if (receivedHash != recalculatedHash)
+                {
+                    MessageBox.Show("Possible malicious activity detected!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Process.GetCurrentProcess().Kill();
+                }
+
+                dynamic content2 = JsonConvert.DeserializeObject(content);
+                if (response.IsSuccessStatusCode)
+                {
+                    User.ID = content2.user.id;
+                    User.Username = content2.user.username;
+                    User.Email = content2.user.email;
+                    User.Expiry = content2.user.expiryDate;
+                    User.LastLogin = content2.user.lastLogin;
+                    User.IP = content2.user.lastIP;
+                    User.HWID = content2.user.hwid;
+                    User.AuthToken = content2.token;
+                    Security.End();
+                    return true;
+                }
+                else
+                {
+                    //Console.WriteLine(content2.code);
+                    if (content2.code == "UNAUTHORIZED")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "NOT_FOUND")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "VALIDATION_FAILED")
+                    {
+                        MessageBox.Show(Convert.ToString(content2.details), OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (content2.code == "FORBIDDEN")
+                    {
+                        MessageBox.Show((string)content2.message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    Security.End();
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException.ToString().Contains("Unable to connect to the remote server"))
+                    MessageBox.Show("Unable to connect to the remote server!", OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                    MessageBox.Show(ex.Message, OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Security.End();
+                return false;
+            }
+        }
+
         public static bool Register(string username, string password, string email, string license)
         {
             if (!Constants.initialized)
