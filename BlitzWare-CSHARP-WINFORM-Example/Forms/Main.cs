@@ -27,27 +27,27 @@ namespace BlitzWare
         {
             InitializeComponent();
             this.FormBorderStyle = FormBorderStyle.None;
-            welcome.Text = "Welcome back, " + API.User.Username + "!";
-            userid.Text = "ID: " + API.User.ID;
-            username.Text = "Username: " + API.User.Username;
-            expiry.Text = "Subscription Expiry: " + API.User.Expiry;
-            email.Text = "Email: " + API.User.Email;
-            hwid.Text = "HWID: " + API.User.HWID;
-            ip.Text = "IP: " + API.User.IP;
-            lastlogin.Text = "Last Login: " + API.User.LastLogin;
+            welcome.Text = "Welcome back, " + Program.BlitzWareAuth.userData.Username + "!";
+            userid.Text = "ID: " + Program.BlitzWareAuth.userData.Id;
+            username.Text = "Username: " + Program.BlitzWareAuth.userData.Username;
+            expiry.Text = "Subscription Expiry: " + Program.BlitzWareAuth.userData.ExpiryDate;
+            email.Text = "Email: " + Program.BlitzWareAuth.userData.Email;
+            hwid.Text = "HWID: " + Program.BlitzWareAuth.userData.HWID;
+            ip.Text = "IP: " + Program.BlitzWareAuth.userData.LastIP;
+            lastlogin.Text = "Last Login: " + Program.BlitzWareAuth.userData.LastLogin;
         }
 
         private void MainR6S_Load(object sender, EventArgs e)
         {
             //picturebox.Load(User.ProfilePicture);
-            welcome.Text = "Welcome back, " + API.User.Username + "!";
-            userid.Text = "ID: " + API.User.ID;
-            username.Text = "Username: " + API.User.Username;
-            expiry.Text = "Subscription Expiry: " + API.User.Expiry;
-            email.Text = "Email: " + API.User.Email;
-            hwid.Text = "HWID: " + API.User.HWID;
-            ip.Text = "IP: " + API.User.IP;
-            lastlogin.Text = "Last Login: " + API.User.LastLogin;
+            welcome.Text = "Welcome back, " + Program.BlitzWareAuth.userData.Username + "!";
+            userid.Text = "ID: " + Program.BlitzWareAuth.userData.Id;
+            username.Text = "Username: " + Program.BlitzWareAuth.userData.Username;
+            expiry.Text = "Subscription Expiry: " + Program.BlitzWareAuth.userData.ExpiryDate;
+            email.Text = "Email: " + Program.BlitzWareAuth.userData.Email;
+            hwid.Text = "HWID: " + Program.BlitzWareAuth.userData.HWID;
+            ip.Text = "IP: " + Program.BlitzWareAuth.userData.LastIP;
+            lastlogin.Text = "Last Login: " + Program.BlitzWareAuth.userData.LastLogin;
         }
 
         private void welcome_Click(object sender, EventArgs e)
@@ -217,7 +217,7 @@ namespace BlitzWare
 
         private void button1_Click(object sender, EventArgs e)
         {
-            API.CreateQRCode(); 
+            MessageBox.Show("Not implemented!", Program.BlitzWareAuth.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
@@ -229,11 +229,11 @@ namespace BlitzWare
         {
             if (textBox1.Text.Length == 0)
             {
-                MessageBox.Show("Please provide a code to enable 2FA!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please provide a code to enable 2FA!", Program.BlitzWareAuth.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                API.Verify2FA(textBox1.Text);
+                MessageBox.Show("Not implemented!", Program.BlitzWareAuth.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -242,11 +242,11 @@ namespace BlitzWare
 
             if (textBox2.Text.Length == 0)
             {
-                MessageBox.Show("Please provide a code to disable 2FA!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Please provide a code to disable 2FA!", Program.BlitzWareAuth.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                API.Disable2FA(textBox2.Text);
+                MessageBox.Show("Not implemented!", Program.BlitzWareAuth.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

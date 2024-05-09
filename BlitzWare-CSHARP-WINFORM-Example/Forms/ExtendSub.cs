@@ -1,13 +1,5 @@
-﻿using BlitzWare;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using System;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BlitzWare
@@ -25,10 +17,10 @@ namespace BlitzWare
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (API.ExtendSub(username.Text, password.Text, license.Text))
+            if (Program.BlitzWareAuth.Extend(username.Text, password.Text, license.Text))
             {
-                MessageBox.Show("You have successfully extended your subscription!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                API.Log(API.User.Username, "User extended");
+                MessageBox.Show("You have successfully extended your subscription!", Program.BlitzWareAuth.userData.Username, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Program.BlitzWareAuth.Log(Program.BlitzWareAuth.userData.Username, "User extended");
             }
         }
 

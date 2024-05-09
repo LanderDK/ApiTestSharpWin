@@ -1,14 +1,6 @@
-﻿using BlitzWare;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BlitzWare
@@ -43,18 +35,18 @@ namespace BlitzWare
         {
             if (rememberMeCheckBox.Checked)
             {
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Username", username.Text);
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Password", password.Text);
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Username", username.Text);
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Password", password.Text);
             }
             if (!rememberMeCheckBox.Checked)
             {
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Username", "");
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Password", "");
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Username", "");
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Password", "");
             }
-            if (API.Login(username.Text, password.Text, twoFactor.Text))
+            if (Program.BlitzWareAuth.Login(username.Text, password.Text, twoFactor.Text))
             {
-                MessageBox.Show("Welcome back, " + API.User.Username + "!" + "\n\nYou have successfully logged in!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                API.Log(API.User.Username, "User logged in");
+                MessageBox.Show("Welcome back, " + Program.BlitzWareAuth.userData.Username + "!" + "\n\nYou have successfully logged in!", Program.BlitzWareAuth.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Program.BlitzWareAuth.Log(Program.BlitzWareAuth.userData.Username, "User logged in");
                 // do code you want
                 Main main = new Main();
                 main.Show();
@@ -148,32 +140,32 @@ namespace BlitzWare
 
         private void Login_Load(object sender, EventArgs e)
         {
-            string keyName = @"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name;
+            string keyName = @"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName;
             string valueName = "Username";
             if (Registry.GetValue(keyName, valueName, null) == null)
             {
                 //code if key Not Exist
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Username", "");
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Password", "");
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Username", "");
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Password", "");
             }
             else
             {
                 //code if key Exist
             }
 
-            var Username = Registry.GetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Username", null);
-            var Password = Registry.GetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Password", null);
+            var Username = Registry.GetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Username", null);
+            var Password = Registry.GetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Password", null);
             if ((Username.Equals("") || Username == "") && (Password.Equals("") || Password == ""))
             {
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Username", "");
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + API.OnProgramStart.Name, "Password", "");
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Username", "");
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\BlitzWare\" + Program.BlitzWareAuth.AppName, "Password", "");
             }
             if ((!Username.Equals("") || Username != "") && (!Password.Equals("") || Password != ""))
             {
                 username.Text = (string)Username;
                 password.Text = (string)Password;
             }
-            if (!API.ApplicationSettings.freeMode)
+            if (Program.BlitzWareAuth.appData.FreeMode == 0)
             {
                 button4.Visible = true;
             }

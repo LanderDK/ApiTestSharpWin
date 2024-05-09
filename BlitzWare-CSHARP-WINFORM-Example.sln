@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.33214.272
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiTestSharpWin", "ApiTestSharpWin\ApiTestSharpWin.csproj", "{58C14711-47E7-44DC-9BE7-4E8DAEC5C7C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlitzWare-CSHARP-WINFORM-Example", "BlitzWare-CSHARP-WINFORM-Example\BlitzWare-CSHARP-WINFORM-Example.csproj", "{58C14711-47E7-44DC-9BE7-4E8DAEC5C7C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

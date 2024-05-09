@@ -10,13 +10,17 @@ namespace BlitzWare
 {
     internal static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+        public static API BlitzWareAuth = new(
+            apiUrl: "https://api.blitzware.xyz/api",
+            appName: "NAME",
+            appSecret: "SECRET",
+            appVersion: "VERSION"
+        );
+
         [STAThread]
         static void Main()
         {
-            BlitzWare.API.OnProgramStart.Initialize("APP NAME", "APP SECRET", "APP VERSION");
+            BlitzWareAuth.Initialize();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Login());

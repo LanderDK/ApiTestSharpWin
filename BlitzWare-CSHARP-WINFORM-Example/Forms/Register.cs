@@ -1,13 +1,5 @@
-﻿using BlitzWare;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using System;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BlitzWare
@@ -25,10 +17,10 @@ namespace BlitzWare
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (API.Register(username.Text, password.Text, email.Text, license.Text))
+            if (Program.BlitzWareAuth.Register(username.Text, password.Text, email.Text, license.Text))
             {
-                MessageBox.Show("You have successfully registered!", API.OnProgramStart.Name, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                API.Log(API.User.Username, "User registered");
+                MessageBox.Show("You have successfully registered!", Program.BlitzWareAuth.userData.Username, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Program.BlitzWareAuth.Log(Program.BlitzWareAuth.userData.Username, "User registered");
             }
         }
 
@@ -116,7 +108,7 @@ namespace BlitzWare
 
         private void Register_Load(object sender, EventArgs e)
         {
-            if (!API.ApplicationSettings.freeMode)
+            if (Program.BlitzWareAuth.appData.FreeMode == 0)
             {
                 license.Visible = true;
             }
