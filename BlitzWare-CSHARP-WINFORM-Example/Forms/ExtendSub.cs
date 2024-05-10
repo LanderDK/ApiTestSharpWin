@@ -20,7 +20,7 @@ namespace BlitzWare
             if (Program.BlitzWareAuth.Extend(username.Text, password.Text, license.Text))
             {
                 MessageBox.Show("You have successfully extended your subscription!", Program.BlitzWareAuth.userData.Username, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Program.BlitzWareAuth.Log(Program.BlitzWareAuth.userData.Username, "User extended");
+                Program.BlitzWareAuth.Log("User extended");
             }
         }
 

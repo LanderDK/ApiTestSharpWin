@@ -226,7 +226,7 @@ namespace BlitzWare
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
 
-                string jsonData = $"{{\"username\":\"{username}\",\"password\":\"{password}\",\"email\":\"{email}\",\"license\":\"{license}\",\"hwid\":\"{Utilities.HWID()}\",\"lastIP\":\"{Utilities.IP()}\",\"id\":\"{appData.Id}\"}}";
+                string jsonData = $"{{\"username\":\"{username}\",\"password\":\"{password}\",\"email\":\"{email}\",\"license\":\"{license}\",\"hwid\":\"{Utilities.HWID()}\",\"lastIP\":\"{Utilities.IP()}\",\"applicationId\":\"{appData.Id}\"}}";
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = client.PostAsync(url, content).Result;
 
@@ -275,7 +275,7 @@ namespace BlitzWare
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
 
-                string jsonData = $"{{\"username\":\"{username}\",\"password\":\"{password}\",\"twoFactorCode\":\"{twoFactorCode}\",\"hwid\":\"{Utilities.HWID()}\",\"lastIP\":\"{Utilities.IP()}\",\"appId\":\"{appData.Id}\"}}";
+                string jsonData = $"{{\"username\":\"{username}\",\"password\":\"{password}\",\"twoFactorCode\":\"{twoFactorCode}\",\"hwid\":\"{Utilities.HWID()}\",\"lastIP\":\"{Utilities.IP()}\",\"applicationId\":\"{appData.Id}\"}}";
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = client.PostAsync(url, content).Result;
 
@@ -324,7 +324,7 @@ namespace BlitzWare
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
 
-                string jsonData = $"{{\"license\":\"{license}\",\"hwid\":\"{Utilities.HWID()}\",\"lastIP\":\"{Utilities.IP()}\",\"appId\":\"{appData.Id}\"}}";
+                string jsonData = $"{{\"license\":\"{license}\",\"hwid\":\"{Utilities.HWID()}\",\"lastIP\":\"{Utilities.IP()}\",\"applicationId\":\"{appData.Id}\"}}";
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = client.PostAsync(url, content).Result;
 
@@ -373,7 +373,7 @@ namespace BlitzWare
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
 
-                string jsonData = $"{{\"username\":\"{username}\",\"password\":\"{password}\",\"license\":\"{license}\",\"hwid\":\"{Utilities.HWID()}\",\"appId\":\"{appData.Id}\"}}";
+                string jsonData = $"{{\"username\":\"{username}\",\"password\":\"{password}\",\"license\":\"{license}\",\"hwid\":\"{Utilities.HWID()}\",\"applicationId\":\"{appData.Id}\"}}";
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = client.PutAsync(url, content).Result;
 
@@ -407,7 +407,7 @@ namespace BlitzWare
                 return false;
             }
         }
-        public void Log(string username, string action)
+        public void Log(string action)
         {
             if (!Initialized)
             {
@@ -423,7 +423,7 @@ namespace BlitzWare
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userData.Token);
 
-                string jsonData = $"{{\"username\":\"{username}\",\"action\":\"{action}\",\"ip\":\"{Utilities.IP()}\",\"appId\":\"{appData.Id}\"}}";
+                string jsonData = $"{{\"action\":\"{action}\",\"ip\":\"{Utilities.IP()}\",\"applicationId\":\"{appData.Id}\",\"userId\":\"{userData.Id}\"}}";
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = client.PostAsync(url, content).Result;
 

@@ -20,7 +20,7 @@ namespace BlitzWare
             if (Program.BlitzWareAuth.Register(username.Text, password.Text, email.Text, license.Text))
             {
                 MessageBox.Show("You have successfully registered!", Program.BlitzWareAuth.userData.Username, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Program.BlitzWareAuth.Log(Program.BlitzWareAuth.userData.Username, "User registered");
+                Program.BlitzWareAuth.Log("User registered");
             }
         }
 

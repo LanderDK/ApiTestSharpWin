@@ -46,7 +46,7 @@ namespace BlitzWare
             if (Program.BlitzWareAuth.Login(username.Text, password.Text, twoFactor.Text))
             {
                 MessageBox.Show("Welcome back, " + Program.BlitzWareAuth.userData.Username + "!" + "\n\nYou have successfully logged in!", Program.BlitzWareAuth.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Program.BlitzWareAuth.Log(Program.BlitzWareAuth.userData.Username, "User logged in");
+                Program.BlitzWareAuth.Log("User logged in");
                 // do code you want
                 Main main = new Main();
                 main.Show();
